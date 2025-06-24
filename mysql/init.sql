@@ -45,9 +45,6 @@ CREATE TABLE IF NOT EXISTS nas (
   PRIMARY KEY (id)
 );
 
--- Cliente local para pruebas
-INSERT INTO nas (nasname, shortname, type, secret) VALUES ('127.0.0.1', 'localhost', 'other', 'testing123')
-  ON DUPLICATE KEY UPDATE secret='testing123';
-
-INSERT INTO nas (nasname, shortname, type, secret) VALUES ('172.20.0.4', 'portal', 'other', 'testing123')
+-- Aceptar conexiones desde cualquier dirección IP
+INSERT INTO nas (nasname, shortname, type, secret) VALUES ('0.0.0.0/0', 'public', 'other', 'testing123')
   ON DUPLICATE KEY UPDATE secret='testing123';
