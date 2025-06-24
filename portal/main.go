@@ -9,7 +9,7 @@ import (
 )
 
 type WelcomeData struct {
-	Username string
+	Username        string
 	TiempoPermitido int
 }
 
@@ -41,7 +41,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func bienvenidaHandler(w http.ResponseWriter, r *http.Request) {
 	user := r.URL.Query().Get("user")
-	tiempo := r.URL.Query().Get("tiempo")
+	//tiempo := r.URL.Query().Get("tiempo")
 	data := WelcomeData{Username: user, TiempoPermitido: 2}
 	if t, ok := os.LookupEnv("TIEMPO_PERMITIDO"); ok {
 		fmt.Sscanf(t, "%d", &data.TiempoPermitido)

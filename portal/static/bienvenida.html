@@ -2,10 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenida - Dulcería Macam</title>
+    <title>Bienvenida - Dulcería</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            font-family: 'Roboto', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h2 {
+            color: #4f46e5;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+        }
+        p {
+            color: #374151;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        .tiempo {
+            color: #16a34a;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .logo {
+            width: 60px;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <h2>¡Bienvenido al sistema de Dulcería Macam, {{.Username}}!</h2>
-    <p>Tu tiempo de conexión permitido es: <strong>{{.TiempoPermitido}}</strong> horas.</p>
+    <div class="container">
+        <img src="https://img.icons8.com/color/96/000000/candy.png" alt="Logo" class="logo"/>
+        <h2>¡Bienvenido, {{.Username}}!</h2>
+        <p>Has accedido exitosamente al WiFi de <strong>Dulcería</strong>.</p>
+        <p>Tu tiempo de conexión permitido es: <span class="tiempo">{{.TiempoPermitido}}</span> horas.</p>
+    </div>
 </body>
 </html>
