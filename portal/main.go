@@ -26,7 +26,11 @@ func main() {
 	app.Get("/", loginGetHandler)
 	app.Post("/", loginPostHandler)
 	app.Get("/bienvenida", bienvenidaHandler)
-	app.Static("/static", "./static")
+	//app.Static("/static", "./static")
+
+	// Configura la carpeta de vistas para que Fiber busque correctamente los archivos
+	engine.Reload(true) // Habilita recarga en desarrollo
+	engine.AddFunc("asset", func(name string) string { return "/static/" + name })
 
 	fmt.Println("Portal escuchando en :8080")
 	log.Fatal(app.Listen(":8080"))
@@ -37,7 +41,7 @@ func loginGetHandler(c *fiber.Ctx) error {
 	if c.Query("error") == "1" {
 		errorMsg = "Usuario o contraseña incorrectos. Intenta de nuevo."
 	}
-	return c.Render("static/login.html", fiber.Map{"Error": errorMsg})
+	return c.Render("login", fiber.Map{"Error": errorMsg})
 }
 
 func loginPostHandler(c *fiber.Ctx) error {
@@ -46,8 +50,13 @@ func loginPostHandler(c *fiber.Ctx) error {
 
 	radiusHost := os.Getenv("RADIUS_HOST")
 	if radiusHost == "" {
-		radiusHost = "localhost:1812"
+		radiusHost = "freeradius"
 	}
+	radiusPort := os.Getenv("RADIUS_PORT")
+	if radiusPort == "" {
+		radiusPort = "1812"
+	}
+	address := fmt.Sprintf("%s:%s", radiusHost, radiusPort)
 	secret := os.Getenv("RADIUS_SECRET")
 	if secret == "" {
 		secret = "testing123"
@@ -58,8 +67,13 @@ func loginPostHandler(c *fiber.Ctx) error {
 	rfc2865.UserPassword_SetString(packet, password)
 
 	ctx := context.Background()
-	resp, err := radius.Exchange(ctx, packet, radiusHost)
-	if err != nil || resp.Code != radius.CodeAccessAccept {
+	resp, err := radius.Exchange(ctx, packet, address)
+	if err != nil {
+		fmt.Printf("[RADIUS ERROR] %v\n", err)
+		return c.Status(500).SendString("Error interno: " + err.Error())
+	}
+	if resp.Code != radius.CodeAccessAccept {
+		fmt.Printf("[RADIUS DENY] Usuario: %s, Código: %v\n", username, resp.Code)
 		return c.Redirect("/?error=1")
 	}
 
@@ -70,5 +84,5 @@ func bienvenidaHandler(c *fiber.Ctx) error {
 	user := c.Query("user")
 	tiempo := c.Query("tiempo")
 	data := fiber.Map{"Username": user, "TiempoPermitido": tiempo}
-	return c.Render("static/bienvenida.html", data)
+	return c.Render("bienvenida", data)
 }

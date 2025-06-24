@@ -12,5 +12,6 @@ sql {
   password = "macampass"
   radius_db = "dulceria_macam"
   read_clients = yes
+  authorize_check_query = "SELECT id, username, attribute, value, op FROM radcheck WHERE username = '%{User-Name}' ORDER BY id"
   # ...otros parámetros por defecto...
 }
