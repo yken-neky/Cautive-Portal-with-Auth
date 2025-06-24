@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"html/template"
 	"log"
-	"net/http"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+	"layeh.com/radius"
+	"layeh.com/radius/rfc2865"
 )
 
 type WelcomeData struct {
@@ -14,38 +18,57 @@ type WelcomeData struct {
 }
 
 func main() {
-	http.HandleFunc("/", loginHandler)
-	http.HandleFunc("/bienvenida", bienvenidaHandler)
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	engine := html.New("./static", ".html")
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	app.Get("/", loginGetHandler)
+	app.Post("/", loginPostHandler)
+	app.Get("/bienvenida", bienvenidaHandler)
+	app.Static("/static", "./static")
+
 	fmt.Println("Portal escuchando en :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(app.Listen(":8080"))
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		tmpl, _ := template.ParseFiles("static/login.html")
-		tmpl.Execute(w, nil)
-		return
+func loginGetHandler(c *fiber.Ctx) error {
+	errorMsg := ""
+	if c.Query("error") == "1" {
+		errorMsg = "Usuario o contraseña incorrectos. Intenta de nuevo."
 	}
-	// Aquí se validaría contra FreeRadius (pendiente de implementar)
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	// Simulación de validación exitosa
-	if username == "demo" && password == "demo123" {
-		http.Redirect(w, r, "/bienvenida?user=demo&tiempo=2", http.StatusSeeOther)
-		return
-	}
-	http.Redirect(w, r, "/?error=1", http.StatusSeeOther)
+	return c.Render("static/login.html", fiber.Map{"Error": errorMsg})
 }
 
-func bienvenidaHandler(w http.ResponseWriter, r *http.Request) {
-	user := r.URL.Query().Get("user")
-	//tiempo := r.URL.Query().Get("tiempo")
-	data := WelcomeData{Username: user, TiempoPermitido: 2}
-	if t, ok := os.LookupEnv("TIEMPO_PERMITIDO"); ok {
-		fmt.Sscanf(t, "%d", &data.TiempoPermitido)
+func loginPostHandler(c *fiber.Ctx) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+
+	radiusHost := os.Getenv("RADIUS_HOST")
+	if radiusHost == "" {
+		radiusHost = "localhost:1812"
 	}
-	tmpl, _ := template.ParseFiles("static/bienvenida.html")
-	tmpl.Execute(w, data)
+	secret := os.Getenv("RADIUS_SECRET")
+	if secret == "" {
+		secret = "testing123"
+	}
+
+	packet := radius.New(radius.CodeAccessRequest, []byte(secret))
+	rfc2865.UserName_SetString(packet, username)
+	rfc2865.UserPassword_SetString(packet, password)
+
+	ctx := context.Background()
+	resp, err := radius.Exchange(ctx, packet, radiusHost)
+	if err != nil || resp.Code != radius.CodeAccessAccept {
+		return c.Redirect("/?error=1")
+	}
+
+	return c.Redirect("/bienvenida?user=" + username + "&tiempo=2")
+}
+
+func bienvenidaHandler(c *fiber.Ctx) error {
+	user := c.Query("user")
+	tiempo := c.Query("tiempo")
+	data := fiber.Map{"Username": user, "TiempoPermitido": tiempo}
+	return c.Render("static/bienvenida.html", data)
 }

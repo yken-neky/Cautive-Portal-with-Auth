@@ -82,7 +82,7 @@
             <button type="submit">Ingresar</button>
         </form>
         {{if .Error}}
-        <div class="error">Usuario o contraseña incorrectos. Intenta de nuevo.</div>
+        <div class="error">{{.Error}}</div>
         {{end}}
     </div>
 </body>
