@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dulceria_macam
+      MYSQL_USER: macamuser
+      MYSQL_PASSWORD: macampass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+
+  freeradius:
+    image: freeradius/freeradius-server:latest
+    container_name: freeradius
+    depends_on:
+      - mysql
+    environment:
+      - RADIUS_DB_HOST=mysql
+      - RADIUS_DB_USER=macamuser
+      - RADIUS_DB_PASS=macampass
+      - RADIUS_DB_NAME=dulceria_macam
+    ports:
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+    volumes:
+      - ./freeradius:/etc/freeradius/3.0
+
+  portal:
+    build: ./portal
+    container_name: portal
+    depends_on:
+      - freeradius
+    ports:
+      - "8080:8080"
+    environment:
+      - RADIUS_HOST=freeradius
+      - RADIUS_SECRET=testing123
+      - RADIUS_PORT=1812
+
+volumes:
+  mysql_data:

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Portal Cautivo - Dulcería Macam</title>
+</head>
+<body>
+    <h2>Bienvenido al Portal Cautivo de Dulcería Macam</h2>
+    <form method="POST" action="/">
+        <label>Usuario:</label><br>
+        <input type="text" name="username" required><br>
+        <label>Contraseña:</label><br>
+        <input type="password" name="password" required><br><br>
+        <button type="submit">Ingresar</button>
+    </form>
+    {{if .Error}}
+    <p style="color:red;">Usuario o contraseña incorrectos</p>
+    {{end}}
+</body>
+</html>

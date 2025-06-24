@@ -1,0 +1,16 @@
+# Configuración básica de FreeRadius para usar MySQL
+# Este archivo debe ser adaptado y copiado a /etc/freeradius/3.0/mods-available/sql
+# y enlazado en mods-enabled
+
+# Ejemplo mínimo:
+sql {
+  driver = "rlm_sql_mysql"
+  dialect = "mysql"
+  server = "mysql"
+  port = 3306
+  login = "macamuser"
+  password = "macampass"
+  radius_db = "dulceria_macam"
+  read_clients = yes
+  # ...otros parámetros por defecto...
+}
