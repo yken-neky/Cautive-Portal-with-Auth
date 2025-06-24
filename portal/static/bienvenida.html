@@ -5,52 +5,76 @@
     <title>Bienvenida - Dulcería</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-            font-family: 'Roboto', Arial, sans-serif;
+            min-height: 100vh;
+            margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            background: linear-gradient(120deg, #e3eafc 0%, #f6fafd 100%);
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        .main-center {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
         }
         .container {
-            background: #fff;
-            padding: 2.5rem 2rem;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.97);
+            border-radius: 18px;
+            box-shadow: 0 6px 32px 0 rgba(80, 120, 255, 0.10), 0 2px 12px 0 rgba(80,80,80,0.06);
+            padding: 2.5rem 2.2rem 2rem 2.2rem;
             max-width: 400px;
             width: 100%;
             text-align: center;
-        }
-        h2 {
-            color: #4f46e5;
-            margin-bottom: 1.2rem;
-            font-weight: 700;
-        }
-        p {
-            color: #374151;
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-        .tiempo {
-            color: #16a34a;
-            font-weight: 700;
-            font-size: 1.2rem;
+            margin: 2rem auto 0 auto;
+            position: relative;
         }
         .logo {
             width: 60px;
             margin-bottom: 1rem;
         }
+        h2 {
+            color: #3b82f6;
+            margin-bottom: 1.2rem;
+            font-weight: 800;
+        }
+        p {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        .tiempo {
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .footer {
+            flex-shrink: 0;
+            width: 100vw;
+            color: #a1a1aa;
+            font-size: 0.98rem;
+            text-align: center;
+            margin-top: 2.5rem;
+            margin-bottom: 1.2rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-center">
+      <div class="container">
         <img src="https://img.icons8.com/color/96/000000/candy.png" alt="Logo" class="logo"/>
         <h2>¡Bienvenido, {{.Username}}!</h2>
-        <p>Has accedido exitosamente al WiFi de <strong>Dulcería</strong>.</p>
-        <p>Tu tiempo de conexión permitido es: <span class="tiempo">{{.TiempoPermitido}}</span> horas.</p>
+        <p>Tu acceso WiFi ha sido concedido.<br>Tiempo permitido: <span class="tiempo">{{.TiempoPermitido}} horas</span></p>
+      </div>
     </div>
+    <div class="footer">&copy; 2025 Dulcería Macam. Todos los derechos reservados.</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
