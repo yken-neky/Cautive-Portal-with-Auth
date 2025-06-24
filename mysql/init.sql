@@ -51,3 +51,6 @@ INSERT INTO nas (nasname, shortname, type, secret) VALUES ('127.0.0.1', 'localho
 
 INSERT INTO nas (nasname, shortname, type, secret) VALUES ('172.20.0.4', 'portal', 'other', 'testing123')
   ON DUPLICATE KEY UPDATE secret='testing123';
+
+INSERT INTO nas (nasname, shortname, type, secret) VALUES ('172.19.0.4', 'portal', 'other', 'testing123')
+  ON DUPLICATE KEY UPDATE secret='testing123';

@@ -33,7 +33,7 @@ services:
       - ./freeradius/mods-available/sql:/etc/freeradius/mods-available/sql
       - ./wait-for-mysql.sh:/wait-for-mysql.sh
       - ./freeradius/queries.conf:/etc/freeradius/3.0/mods-config/sql/main/mysql/queries.conf
-    command: sh -c "MYSQL_USER=macamuser MYSQL_PASSWORD=macampass MYSQL_DATABASE=dulceria_macam /wait-for-mysql.sh mysql ln -sf /etc/freeradius/mods-available/sql /etc/freeradius/mods-enabled/sql && freeradius -f -X"
+    command: sh -c "chmod 644 /etc/freeradius/mods-available/sql && chmod +x wait-for-mysql.sh && MYSQL_USER=macamuser MYSQL_PASSWORD=macampass MYSQL_DATABASE=dulceria_macam /wait-for-mysql.sh mysql ln -sf /etc/freeradius/mods-available/sql /etc/freeradius/mods-enabled/sql && freeradius -f -X"
 
 
   portal:
