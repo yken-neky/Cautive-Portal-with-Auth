@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/websocket/v2"
 	"layeh.com/radius"
 	"layeh.com/radius/rfc2865"
 
@@ -26,6 +29,16 @@ func main() {
 	}))
 
 	app.Post("/login_auth", loginPostHandler)
+
+	// WebSocket endpoint para actualizar tiempo (dinámico por usuario)
+	app.Use("/ws/update_time", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+	app.Get("/ws/update_time", websocket.New(updateTimeWSHandler))
+	app.Get("/ws/update_time/:username", websocket.New(updateTimeWSHandler))
 
 	log.Fatal(app.Listen(":8080"))
 }
@@ -70,6 +83,7 @@ func loginPostHandler(c *fiber.Ctx) error {
 	}
 
 	// Consultar el tiempo_permitido del usuario en la base de datos
+	// Ahora el tiempo está en segundos
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPass := os.Getenv("MYSQL_PASSWORD")
 	dbHost := os.Getenv("MYSQL_HOST")
@@ -100,7 +114,7 @@ func loginPostHandler(c *fiber.Ctx) error {
 				})
 			}
 			if tiempo.Valid {
-				tiempoDisponible = tiempo.Int64
+				tiempoDisponible = tiempo.Int64 // ya está en segundos
 			}
 		}
 	}
@@ -110,4 +124,53 @@ func loginPostHandler(c *fiber.Ctx) error {
 		"user":    username,
 		"tiempo":  tiempoDisponible,
 	})
+}
+
+// Handler WebSocket para actualizar tiempo restante
+func updateTimeWSHandler(c *websocket.Conn) {
+	type TiempoMsg struct {
+		Username string `json:"username"`
+		Tiempo   int    `json:"tiempo"`
+	}
+	timeout := 10 * time.Second
+	for {
+		c.SetReadDeadline(time.Now().Add(timeout))
+		_, msg, err := c.ReadMessage()
+		if err != nil {
+			// Solo loguear si es un error inesperado, no si es cierre normal
+			if !websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+				fmt.Printf("[WS ERROR] Error leyendo JSON o timeout: %v\n", err)
+			}
+			break
+		}
+		var data TiempoMsg
+		if err := json.Unmarshal(msg, &data); err != nil {
+			fmt.Printf("[WS ERROR] JSON inválido: %v\n", err)
+			continue
+		}
+		fmt.Printf("[WS] Recibido: username=%s, tiempo=%d\n", data.Username, data.Tiempo)
+		// Actualizar tiempo en la base de datos
+		dbUser := os.Getenv("MYSQL_USER")
+		dbPass := os.Getenv("MYSQL_PASSWORD")
+		dbHost := os.Getenv("MYSQL_HOST")
+		if dbHost == "" {
+			dbHost = "mysql"
+		}
+		dbName := os.Getenv("MYSQL_DATABASE")
+		if dbName == "" {
+			dbName = "dulceria_macam"
+		}
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbName)
+		if dbUser != "" && dbPass != "" {
+			db, err := sql.Open("mysql", dsn)
+			if err == nil {
+				defer db.Close()
+				_, err = db.Exec("UPDATE usuarios SET tiempo_permitido = ? WHERE TRIM(username) = TRIM(?)", data.Tiempo, data.Username)
+				if err != nil {
+					fmt.Printf("[WS DB ERROR] Usuario: %s, Error: %v\n", data.Username, err)
+					continue
+				}
+			}
+		}
+	}
 }
