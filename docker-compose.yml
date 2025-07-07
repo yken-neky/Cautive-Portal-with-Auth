@@ -47,6 +47,21 @@ services:
       - RADIUS_HOST=freeradius
       - RADIUS_SECRET=testing123
       - RADIUS_PORT=1812
+      - MYSQL_USER=macamuser
+      - MYSQL_PASSWORD=macampass
+      - MYSQL_HOST=mysql
+      - MYSQL_DATABASE=dulceria_macam
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - portal
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://portal:8080
+    working_dir: /app
 
 volumes:
   mysql_data:

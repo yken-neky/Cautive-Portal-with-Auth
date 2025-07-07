@@ -1,0 +1,17 @@
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  validateStatus: () => true,
+});
+
+export async function loginAuth(username: string, password: string) {
+  return api.post(
+    "/login_auth",
+    { username, password },
+    {
+      transformRequest: [(data) => new URLSearchParams(data).toString()],
+    }
+  );
+}
