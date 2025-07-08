@@ -59,7 +59,7 @@ func loginPostHandler(c *fiber.Ctx) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 
-	// Verificar si el usuario ya tiene una sesión activa
+	// Verificar si el usuario ya tiene una sesión activa y si no ha expirado
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPass := os.Getenv("MYSQL_PASSWORD")
 	dbHost := os.Getenv("MYSQL_HOST")
@@ -76,12 +76,24 @@ func loginPostHandler(c *fiber.Ctx) error {
 		if err == nil {
 			defer db.Close()
 			var isActive bool
-			err = db.QueryRow("SELECT isactive FROM usuarios WHERE TRIM(username) = TRIM(?)", username).Scan(&isActive)
-			if err == nil && isActive {
-				return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-					"success": false,
-					"error":   "Ya existe una sesión activa para este usuario.",
-				})
+			var expiracion sql.NullString
+			err = db.QueryRow("SELECT isactive, expiracion FROM usuarios WHERE TRIM(username) = TRIM(?)", username).Scan(&isActive, &expiracion)
+			if err == nil {
+				if isActive {
+					return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+						"success": false,
+						"error":   "Ya existe una sesión activa para este usuario.",
+					})
+				}
+				if expiracion.Valid {
+					exp, err := time.Parse("2006-01-02 15:04:05", expiracion.String)
+					if err == nil && time.Now().After(exp) {
+						return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+							"success": false,
+							"error":   "La cuenta ha expirado. Contacte al administrador.",
+						})
+					}
+				}
 			}
 		}
 	}
