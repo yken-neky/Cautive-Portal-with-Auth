@@ -44,6 +44,8 @@ function BienvenidaContent() {
     if (tiempoRestante === null) return;
     if (tiempoRestante <= 0) {
       setExpirado(true);
+      // Si el tiempo se acaba, cerrar sesión automáticamente
+      handleLogout();
       return;
     }
     const interval = setInterval(() => {
@@ -88,9 +90,32 @@ function BienvenidaContent() {
     };
   }, [user, tiempoRestante]);
 
+  // Llamar a mac_api?action=add al entrar a la página de bienvenida (solo una vez)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const res = await fetch("http://192.168.1.1:8080/cgi-bin/mac_api?action=add");
+        console.log("[mac_api:add] llamada realizada", res.status, await res.text());
+      } catch (err) {
+        console.log("[mac_api:add] error:", err);
+      }
+    })();
+  }, [user]);
+
   // Handler para cerrar sesión y desconectar
   const handleLogout = async () => {
     if (!user) return;
+    // Llamada asíncrona a mac_api?action=remove
+    (async () => {
+      try {
+        const res = await fetch("http://192.168.1.1:8080/cgi-bin/mac_api?action=remove");
+        console.log("[mac_api:remove] llamada realizada", res.status, await res.text());
+      } catch (err) {
+        console.log("[mac_api:remove] error:", err);
+      }
+    })();
+    // Logout normal
     try {
       await logout(user);
     } catch (e) {
