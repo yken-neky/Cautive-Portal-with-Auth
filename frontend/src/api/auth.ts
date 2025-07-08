@@ -15,3 +15,11 @@ export async function loginAuth(username: string, password: string) {
     }
   );
 }
+
+export async function logout(username: string) {
+  return api.get(`/logout?username=${encodeURIComponent(username)}`);
+}
+
+export async function getTiempoRestante(username: string) {
+  return api.get(`/get_tiempo_restante/${encodeURIComponent(username)}`);
+}

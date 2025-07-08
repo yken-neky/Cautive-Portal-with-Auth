@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,9 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+var wsConnections = make(map[string]*websocket.Conn)
+var wsConnectionsMutex = &sync.Mutex{}
 
 func main() {
 	app := fiber.New()
@@ -39,6 +43,14 @@ func main() {
 	})
 	app.Get("/ws/update_time", websocket.New(updateTimeWSHandler))
 	app.Get("/ws/update_time/:username", websocket.New(updateTimeWSHandler))
+
+	// Endpoint correcto para logout (ya existe)
+	app.Get("/logout", logoutHandler)
+
+	// Nuevo endpoint para obtener el tiempo real restante desde la base de datos
+	app.Get("/get_tiempo_restante", getTiempoRestanteHandler)
+	// Endpoint REST para obtener el tiempo real por username en la ruta
+	app.Get("/get_tiempo_restante/:username", getTiempoRestanteHandler)
 
 	log.Fatal(app.Listen(":8080"))
 }
@@ -173,4 +185,52 @@ func updateTimeWSHandler(c *websocket.Conn) {
 			}
 		}
 	}
+}
+
+// Handler para cerrar sesión y desconectar WebSocket
+func logoutHandler(c *fiber.Ctx) error {
+	username := c.Query("username")
+	if username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"success": false, "error": "Username requerido"})
+	}
+	wsConnectionsMutex.Lock()
+	if conn, ok := wsConnections[username]; ok {
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "Logout solicitado"))
+		conn.Close()
+		delete(wsConnections, username)
+	}
+	wsConnectionsMutex.Unlock()
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "message": "Desconectado con éxito"})
+}
+
+// Nuevo endpoint para obtener el tiempo real restante desde la base de datos (por username en la ruta)
+func getTiempoRestanteHandler(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"success": false, "error": "Username requerido"})
+	}
+	dbUser := os.Getenv("MYSQL_USER")
+	dbPass := os.Getenv("MYSQL_PASSWORD")
+	dbHost := os.Getenv("MYSQL_HOST")
+	if dbHost == "" {
+		dbHost = "mysql"
+	}
+	dbName := os.Getenv("MYSQL_DATABASE")
+	if dbName == "" {
+		dbName = "dulceria_macam"
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbName)
+	var tiempo sql.NullInt64
+	tiempoDisponible := int64(0)
+	if dbUser != "" && dbPass != "" {
+		db, err := sql.Open("mysql", dsn)
+		if err == nil {
+			defer db.Close()
+			err = db.QueryRow("SELECT tiempo_permitido FROM usuarios WHERE TRIM(username) = TRIM(?)", username).Scan(&tiempo)
+			if err == nil && tiempo.Valid {
+				tiempoDisponible = tiempo.Int64
+			}
+		}
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "user": username, "tiempo": tiempoDisponible})
 }
