@@ -12,8 +12,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">{children}</body>
+    <html lang="es">
+      <body className="antialiased bg-gradient-to-br from-[#fff7f3] via-[#fdf6e3] to-[#fbeee6] min-h-screen relative overflow-x-hidden">
+        {/* Fondo decorativo de puntitos */}
+        <div className="pointer-events-none fixed inset-0 z-0">
+          <svg
+            width="100%"
+            height="100%"
+            className="absolute inset-0"
+            style={{ opacity: 0.10 }}
+          >
+            <defs>
+              <pattern
+                id="dots"
+                x="0"
+                y="0"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle cx="2" cy="2" r="2" fill="#fbeee6" />
+                <circle cx="20" cy="20" r="2" fill="#fdf6e3" />
+                <circle cx="10" cy="30" r="1.5" fill="#fff7f3" />
+                <circle cx="30" cy="10" r="1.5" fill="#fbeee6" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#dots)" />
+          </svg>
+        </div>
+        <div className="relative z-10">{children}</div>
+      </body>
     </html>
   );
 }

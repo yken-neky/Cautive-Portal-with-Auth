@@ -141,26 +141,26 @@ function BienvenidaContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-100 to-white">
-      <div className="bg-white/90 rounded-xl shadow-xl p-8 max-w-md w-full text-center">
-        <Image src="/globe.svg" alt="Logo" className="mx-auto mb-4" width={64} height={64} />
-        <h2 className="text-2xl font-bold text-blue-600 mb-2">¡Bienvenido, {user}!</h2>
-        <p className="text-gray-600 mb-4">Tu acceso WiFi ha sido concedido.</p>
-        <div className="text-blue-700 font-bold text-lg mb-2">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-transparent">
+      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center border-none backdrop-blur-md form-float">
+        <Image src="/globe.svg" alt="Logo" className="mx-auto mb-6" width={80} height={80} />
+        <h2 className="text-3xl font-extrabold text-rose-600 mb-2 drop-shadow">¡Bienvenido, {user}!</h2>
+        <p className="bone-text mb-4 font-semibold">Tu acceso WiFi ha sido concedido.</p>
+        <div className="bone-text font-bold text-xl mb-2">
           {expirado ? (
             <span className="text-red-600">Tu tiempo ha expirado</span>
           ) : (
-            <>Tiempo restante: {formatTime(tiempoRestante)}</>
+            <>Tiempo restante: <span className="bone-text">{formatTime(tiempoRestante)}</span></>
           )}
         </div>
         <button
-          className="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition"
+          className="mt-6 bg-white/90 bone-text font-bold py-3 px-8 rounded-full shadow-lg transition text-lg button-shadow-hover"
           onClick={handleLogout}
         >
           Desconectar y salir
         </button>
       </div>
-      <div className="mt-8 text-gray-400 text-sm">&copy; 2025 Dulcería Macam. Todos los derechos reservados.</div>
+      <div className="mt-10 bone-text text-lg font-bold drop-shadow">&copy; 2025 SayCheese - Dulcería. Todos los derechos reservados.</div>
     </div>
   );
 }

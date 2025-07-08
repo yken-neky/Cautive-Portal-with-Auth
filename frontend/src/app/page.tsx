@@ -31,66 +31,64 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-100 to-white">
-      <div className="bg-white/90 rounded-xl shadow-xl p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-blue-600 mb-2 text-center">
-          Dulcería{" "}
-          <span className="text-blue-400">Macam</span>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-transparent">
+      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full border-none backdrop-blur-md form-float">
+        <h1 className="text-3xl font-extrabold text-rose-600 mb-2 text-center drop-shadow">
+          SayCheese <span className="text-yellow-500">- Dulcería</span>
         </h1>
-        <p className="text-gray-500 mb-6 text-center">
+        <p className="text-neutral-900 mb-6 text-center font-semibold">
           Acceso WiFi para clientes
         </p>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+          <div className="mb-6">
             <label
-              className="block text-gray-700 font-medium mb-1"
+              className="text-neutral-900 block font-bold mb-2 text-lg"
               htmlFor="username"
             >
               Usuario
             </label>
             <input
+              className="w-full px-5 py-3 rounded-xl input-shadow-pink bg-inherit text-neutral-900 placeholder:text-[#bfae9e]"
               id="username"
-              name="username"
               type="text"
-              className="form-input w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              autoFocus
+              placeholder="Usuario"
             />
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <label
-              className="block text-gray-700 font-medium mb-1"
+              className="text-neutral-900 block font-bold mb-2 text-lg"
               htmlFor="password"
             >
               Contraseña
             </label>
             <input
+              className="w-full px-5 py-3 rounded-xl input-shadow-yellow bg-inherit text-neutral-900 placeholder:text-[#bfae9e]"
               id="password"
-              name="password"
               type="password"
-              className="form-input w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              placeholder="Contraseña"
             />
           </div>
           {error && (
-            <div className="bg-red-100 text-red-700 rounded-md px-3 py-2 mb-3 text-center">
+            <div className="mb-4 text-red-600 font-bold text-center bg-rose-100 rounded-lg py-2 px-4 border border-rose-300">
               {error}
             </div>
           )}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md transition"
+            className="w-full py-3 mt-4 bg-gradient-to-r from-yellow-400 via-pink-300 to-orange-200 text-neutral-900 font-bold rounded-full shadow-lg text-lg transition button-shadow-hover hover:scale-105 hover:shadow-2xl"
           >
             Ingresar
           </button>
         </form>
       </div>
-      <div className="mt-8 text-gray-400 text-sm">
-        &copy; 2025 Dulcería Macam. Todos los derechos reservados.
+      <div className="mt-10 bone-text text-lg font-bold drop-shadow">
+        &copy; 2025 SayCheese - Dulcería. Todos los derechos reservados.
       </div>
     </div>
   );

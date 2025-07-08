@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bone-white: #f9f6f2;
 }
 
 @theme inline {
@@ -20,7 +21,45 @@
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, #f87171 0%, #f472b6 20%, #fbbf24 45%, #fde68a 65%, #f5e9da 85%, #fff 100%) !important;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.input-shadow-pink {
+  box-shadow: 0 2px 16px 0 rgba(236, 72, 153, 0.18), 0 1.5px 0 0 rgba(236, 72, 153, 0.10);
+}
+.input-shadow-yellow {
+  box-shadow: 0 2px 16px 0 rgba(251, 191, 36, 0.18), 0 1.5px 0 0 rgba(251, 191, 36, 0.10);
+}
+.input-shadow-orange {
+  box-shadow: 0 2px 16px 0 rgba(251, 146, 60, 0.18), 0 1.5px 0 0 rgba(251, 146, 60, 0.10);
+}
+
+.form-float {
+  animation: floatForm 4s ease-in-out infinite;
+}
+@keyframes floatForm {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Remove default input borders for a cleaner look */
+input[type="text"], input[type="password"] {
+  border: none !important;
+  outline: none !important;
+  background: #f9f6f2 !important;
+  color: #bfae9e !important;
+}
+
+input[type="text"]::placeholder, input[type="password"]::placeholder {
+  color: #e5ded6 !important;
+}
+
+.button-shadow-hover:hover {
+  box-shadow: 0 0 0 4px #fbbf24, 0 2px 16px 0 rgba(236, 72, 153, 0.18), 0 1.5px 0 0 rgba(251, 191, 36, 0.10);
+}
+
+.bone-text {
+  color: var(--bone-white) !important;
 }
