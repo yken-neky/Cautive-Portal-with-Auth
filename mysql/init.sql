@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    tiempo_permitido INT NOT NULL COMMENT 'Tiempo permitido en segundos'
+    tiempo_permitido INT NOT NULL COMMENT 'Tiempo permitido en segundos',
+    isactive BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Indica si el usuario tiene una sesión activa'
 );
 
 CREATE TABLE IF NOT EXISTS nas (

@@ -59,6 +59,33 @@ func loginPostHandler(c *fiber.Ctx) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 
+	// Verificar si el usuario ya tiene una sesión activa
+	dbUser := os.Getenv("MYSQL_USER")
+	dbPass := os.Getenv("MYSQL_PASSWORD")
+	dbHost := os.Getenv("MYSQL_HOST")
+	if dbHost == "" {
+		dbHost = "mysql"
+	}
+	dbName := os.Getenv("MYSQL_DATABASE")
+	if dbName == "" {
+		dbName = "dulceria_macam"
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbName)
+	if dbUser != "" && dbPass != "" {
+		db, err := sql.Open("mysql", dsn)
+		if err == nil {
+			defer db.Close()
+			var isActive bool
+			err = db.QueryRow("SELECT isactive FROM usuarios WHERE TRIM(username) = TRIM(?)", username).Scan(&isActive)
+			if err == nil && isActive {
+				return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+					"success": false,
+					"error":   "Ya existe una sesión activa para este usuario.",
+				})
+			}
+		}
+	}
+
 	radiusHost := os.Getenv("RADIUS_HOST")
 	if radiusHost == "" {
 		radiusHost = "freeradius"
@@ -96,22 +123,8 @@ func loginPostHandler(c *fiber.Ctx) error {
 
 	// Consultar el tiempo_permitido del usuario en la base de datos
 	// Ahora el tiempo está en segundos
-	dbUser := os.Getenv("MYSQL_USER")
-	dbPass := os.Getenv("MYSQL_PASSWORD")
-	dbHost := os.Getenv("MYSQL_HOST")
-	if dbHost == "" {
-		dbHost = "mysql"
-	}
-	dbName := os.Getenv("MYSQL_DATABASE")
-	if dbName == "" {
-		dbName = "dulceria_macam"
-	}
 	var tiempo sql.NullInt64
 	tiempoDisponible := int64(0)
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbName)
-	// Depuración: imprimir username y DSN
-	fmt.Printf("[DEBUG] Username recibido: '%s'\n", username)
-	fmt.Printf("[DEBUG] DSN: %s\n", dsn)
 	if dbUser != "" && dbPass != "" {
 		db, err := sql.Open("mysql", dsn)
 		if err == nil {
@@ -128,6 +141,15 @@ func loginPostHandler(c *fiber.Ctx) error {
 			if tiempo.Valid {
 				tiempoDisponible = tiempo.Int64 // ya está en segundos
 			}
+		}
+	}
+
+	// Después de autenticar y antes de responder OK, marcar isactive=1
+	if dbUser != "" && dbPass != "" {
+		db, err := sql.Open("mysql", dsn)
+		if err == nil {
+			defer db.Close()
+			_, _ = db.Exec("UPDATE usuarios SET isactive=1 WHERE TRIM(username) = TRIM(?)", username)
 		}
 	}
 
@@ -200,6 +222,25 @@ func logoutHandler(c *fiber.Ctx) error {
 		delete(wsConnections, username)
 	}
 	wsConnectionsMutex.Unlock()
+	// Marcar isactive=0 al hacer logout
+	dbUser := os.Getenv("MYSQL_USER")
+	dbPass := os.Getenv("MYSQL_PASSWORD")
+	dbHost := os.Getenv("MYSQL_HOST")
+	if dbHost == "" {
+		dbHost = "mysql"
+	}
+	dbName := os.Getenv("MYSQL_DATABASE")
+	if dbName == "" {
+		dbName = "dulceria_macam"
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", dbUser, dbPass, dbHost, dbName)
+	if dbUser != "" && dbPass != "" {
+		db, err := sql.Open("mysql", dsn)
+		if err == nil {
+			defer db.Close()
+			_, _ = db.Exec("UPDATE usuarios SET isactive=0 WHERE TRIM(username) = TRIM(?)", username)
+		}
+	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true, "message": "Desconectado con éxito"})
 }
 
