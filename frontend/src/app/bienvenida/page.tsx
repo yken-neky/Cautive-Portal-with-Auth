@@ -131,7 +131,7 @@ function BienvenidaContent() {
       wsRef.current.close();
     }
     alert("Desconectado con éxito, gracias por usar nuestros servicios");
-    router.push("/"); // Redirige al portal cautivo
+    router.push("/cautive/"); // Redirige al portal cautivo
   };
 
   // Formato HH:MM:SS
@@ -148,19 +148,19 @@ function BienvenidaContent() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-transparent">
-      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center border-none backdrop-blur-md form-float">
+      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center border-none backdrop-blur-md form-float text-gray-900">
         <Image src="/globe.svg" alt="Logo" className="mx-auto mb-6" width={80} height={80} />
         <h2 className="text-3xl font-extrabold text-rose-600 mb-2 drop-shadow">¡Bienvenido, {user}!</h2>
-        <p className="bone-text mb-4 font-semibold">Tu acceso WiFi ha sido concedido.</p>
-        <div className="bone-text font-bold text-xl mb-2">
+        <p className="bone-text mb-4 font-semibold text-gray-900">Tu acceso WiFi ha sido concedido.</p>
+        <div className="bone-text font-bold text-xl mb-2 text-gray-900">
           {expirado ? (
             <span className="text-red-600">Tu tiempo ha expirado</span>
           ) : (
-            <>Tiempo restante: <span className="bone-text">{formatTime(tiempoRestante)}</span></>
+            <>Tiempo restante: <span className="bone-text text-gray-900">{formatTime(tiempoRestante)}</span></>
           )}
         </div>
         <button
-          className="mt-6 bg-white/90 bone-text font-bold py-3 px-8 rounded-full shadow-lg transition text-lg button-shadow-hover"
+          className="w-full py-3 mt-4 bg-gradient-to-r from-yellow-400 via-pink-300 to-orange-200 text-neutral-900 font-bold rounded-full shadow-lg text-lg transition button-shadow-hover hover:scale-105 hover:shadow-2xl"
           onClick={handleLogout}
         >
           Desconectar y salir
