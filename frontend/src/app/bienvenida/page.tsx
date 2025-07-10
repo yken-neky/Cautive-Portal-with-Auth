@@ -131,7 +131,9 @@ function BienvenidaContent() {
       wsRef.current.close();
     }
     alert("Desconectado con éxito, gracias por usar nuestros servicios");
-    router.push(`/cautive/${mac}/login`); // Redirige al login de la misma MAC
+    // Asegura que la MAC esté en formato con guiones
+    const macWithDash = (mac || "").replace(/:/g, "-");
+    router.push(`/cautive/${macWithDash}/login`); // Redirige al login de la misma MAC con guiones
   };
 
   // Formato HH:MM:SS
