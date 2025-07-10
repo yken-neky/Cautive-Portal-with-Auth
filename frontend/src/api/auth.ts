@@ -6,10 +6,14 @@ const api = axios.create({
   validateStatus: () => true,
 });
 
-export async function loginAuth(username: string, password: string) {
+export async function loginAuth(
+  username: string,
+  password: string,
+  mac?: string
+) {
   return api.post(
     "/login_auth",
-    { username, password },
+    { username, password, mac },
     {
       transformRequest: [(data) => new URLSearchParams(data).toString()],
     }

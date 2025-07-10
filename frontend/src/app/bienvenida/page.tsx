@@ -16,6 +16,13 @@ export default function Bienvenida() {
 function BienvenidaContent() {
   const params = useSearchParams();
   const user = params.get("user") || "";
+  const mac = params.get("mac") || (() => {
+    if (typeof window !== "undefined") {
+      const match = window.location.pathname.match(/\/cautive\/([A-Fa-f0-9:-]{12,})\/login/);
+      if (match && match[1]) return match[1];
+    }
+    return "";
+  })();
   // El tiempo inicial es null, se obtiene del backend
   const [tiempoRestante, setTiempoRestante] = useState<number | null>(null);
   const [expirado, setExpirado] = useState(false);
@@ -92,24 +99,23 @@ function BienvenidaContent() {
 
   // Llamar a mac_api?action=add al entrar a la página de bienvenida (solo una vez)
   useEffect(() => {
-    if (!user) return;
+    if (!user || !mac) return;
     (async () => {
       try {
-        const res = await fetch("http://192.168.1.1:8080/cgi-bin/mac_api?action=add");
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=add&mac=${encodeURIComponent(mac)}`);
         console.log("[mac_api:add] llamada realizada", res.status, await res.text());
       } catch (err) {
         console.log("[mac_api:add] error:", err);
       }
     })();
-  }, [user]);
+  }, [user, mac]);
 
   // Handler para cerrar sesión y desconectar
   const handleLogout = async () => {
-    if (!user) return;
-    // Llamada asíncrona a mac_api?action=remove
+    if (!user || !mac) return;
     (async () => {
       try {
-        const res = await fetch("http://192.168.1.1:8080/cgi-bin/mac_api?action=remove");
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=remove&mac=${encodeURIComponent(mac)}`);
         console.log("[mac_api:remove] llamada realizada", res.status, await res.text());
       } catch (err) {
         console.log("[mac_api:remove] error:", err);
