@@ -100,9 +100,11 @@ function BienvenidaContent() {
   // Llamar a mac_api?action=add al entrar a la página de bienvenida (solo una vez)
   useEffect(() => {
     if (!user || !mac) return;
+    // Convertir la MAC a formato con dos puntos para la API
+    const macColon = mac.replace(/-/g, ":");
     (async () => {
       try {
-        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=add&mac=${encodeURIComponent(mac)}`);
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=add&mac=${encodeURIComponent(macColon)}`);
         console.log("[mac_api:add] llamada realizada", res.status, await res.text());
       } catch (err) {
         console.log("[mac_api:add] error:", err);
@@ -113,9 +115,11 @@ function BienvenidaContent() {
   // Handler para cerrar sesión y desconectar
   const handleLogout = async () => {
     if (!user || !mac) return;
+    // Convertir la MAC a formato con dos puntos para la API
+    const macColon = mac.replace(/-/g, ":");
     (async () => {
       try {
-        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=remove&mac=${encodeURIComponent(mac)}`);
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=remove&mac=${encodeURIComponent(macColon)}`);
         console.log("[mac_api:remove] llamada realizada", res.status, await res.text());
       } catch (err) {
         console.log("[mac_api:remove] error:", err);
