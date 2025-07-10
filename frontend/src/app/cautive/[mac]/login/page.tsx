@@ -3,10 +3,19 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { loginAuth } from "@/api/auth";
 
-// Utilidad para validar MAC (solo dígitos 0-9 y letras A-F/a-f, separados por : o -)
+// Normaliza la MAC a formato AA:BB:CC:DD:EE:FF y luego valida
+function normalizeMac(mac: string) {
+  // Elimina espacios y convierte a mayúsculas
+  let clean = mac.replace(/\s+/g, "").toUpperCase();
+  // Reemplaza guiones por dos puntos
+  clean = clean.replace(/-/g, ":");
+  return clean;
+}
+
 function isValidMac(mac: string) {
-  // Solo permite 6 pares hexadecimales separados por : o -
-  return /^([0-9A-Fa-f]{2}([:-])){5}([0-9A-Fa-f]{2})$/.test(mac);
+  const normalized = normalizeMac(mac);
+  // Solo permite 6 pares hexadecimales separados por :
+  return /^([0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(normalized);
 }
 
 export default function CautiveLogin() {
@@ -17,10 +26,11 @@ export default function CautiveLogin() {
   const router = useRouter();
   const params = useParams();
 
+
   useEffect(() => {
-    // Extraer la MAC de la ruta /cautive/:mac/login
+    // Extraer la MAC de la ruta /cautive/:mac/login y normalizarla
     const macParam = typeof params.mac === "string" ? params.mac : Array.isArray(params.mac) ? params.mac[0] : "";
-    setMac(macParam);
+    setMac(normalizeMac(macParam));
   }, [params]);
 
   if (!isValidMac(mac)) {
