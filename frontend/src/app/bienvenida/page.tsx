@@ -131,7 +131,7 @@ function BienvenidaContent() {
       wsRef.current.close();
     }
     alert("Desconectado con éxito, gracias por usar nuestros servicios");
-    router.push("/cautive/"); // Redirige al portal cautivo
+    router.push(`/cautive/${mac}/login`); // Redirige al login de la misma MAC
   };
 
   // Formato HH:MM:SS
@@ -148,15 +148,15 @@ function BienvenidaContent() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-transparent">
-      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center border-none backdrop-blur-md form-float text-gray-900">
+      <div className="bg-white/80 rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center border-none backdrop-blur-md form-float">
         <Image src="/globe.svg" alt="Logo" className="mx-auto mb-6" width={80} height={80} />
-        <h2 className="text-3xl font-extrabold text-rose-600 mb-2 drop-shadow">¡Bienvenido, {user}!</h2>
-        <p className="bone-text mb-4 font-semibold text-gray-900">Tu acceso WiFi ha sido concedido.</p>
-        <div className="bone-text font-bold text-xl mb-2 text-gray-900">
+        <h2 className="text-3xl font-extrabold text-rose-600 mb-2 drop-shadow text-gray-900">¡Bienvenido, {user}!</h2>
+        <p className="mb-4 font-semibold text-gray-900">Tu acceso WiFi ha sido concedido.</p>
+        <div className="font-bold text-xl mb-2 text-gray-900">
           {expirado ? (
             <span className="text-red-600">Tu tiempo ha expirado</span>
           ) : (
-            <>Tiempo restante: <span className="bone-text text-gray-900">{formatTime(tiempoRestante)}</span></>
+            <>Tiempo restante: <span className="text-gray-900">{formatTime(tiempoRestante)}</span></>
           )}
         </div>
         <button
@@ -166,7 +166,7 @@ function BienvenidaContent() {
           Desconectar y salir
         </button>
       </div>
-      <div className="mt-10 bone-text text-lg font-bold drop-shadow">&copy; 2025 SayCheese - Dulcería. Todos los derechos reservados.</div>
+      <div className="mt-10 text-lg font-bold drop-shadow text-gray-900">&copy; 2025 SayCheese - Dulcería. Todos los derechos reservados.</div>
     </div>
   );
 }
