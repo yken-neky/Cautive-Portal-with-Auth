@@ -17,6 +17,11 @@ function isValidMac(mac: string) {
   return /^[0-9A-F]{12}$/.test(mac);
 }
 
+function formatMacForApi(mac: string) {
+  // Convierte AABBCCDDEEFF a AA:BB:CC:DD:EE:FF
+  return mac.match(/.{1,2}/g)?.join(":") ?? mac;
+}
+
 export default function CautiveLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,12 +30,25 @@ export default function CautiveLogin() {
   const router = useRouter();
   const params = useParams();
 
-
   useEffect(() => {
     // Extraer la MAC de la ruta /cautive/:mac/login SIN normalizar separadores
     const macParam = typeof params.mac === "string" ? params.mac : Array.isArray(params.mac) ? params.mac[0] : "";
     setMac(macParam.toUpperCase());
   }, [params]);
+
+  useEffect(() => {
+    // Llamar a mac_api?action=add al entrar a la página de bienvenida (solo una vez)
+    if (!mac || !isValidMac(mac)) return;
+    (async () => {
+      try {
+        const macApi = formatMacForApi(mac);
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=add&mac=${encodeURIComponent(macApi)}`);
+        console.log("[mac_api:add] llamada realizada", res.status, await res.text());
+      } catch (err) {
+        console.log("[mac_api:add] error:", err);
+      }
+    })();
+  }, [mac]);
 
   if (!isValidMac(mac)) {
     return (
@@ -46,10 +64,11 @@ export default function CautiveLogin() {
     e.preventDefault();
     setError("");
     try {
-      const res = await loginAuth(username, password, mac);
+      const macApi = formatMacForApi(mac);
+      const res = await loginAuth(username, password, macApi);
       if (res.data.success) {
         router.push(
-          `/bienvenida?user=${encodeURIComponent(res.data.user)}&tiempo=${res.data.tiempo}&mac=${encodeURIComponent(res.data.mac || mac)}`
+          `/bienvenida?user=${encodeURIComponent(res.data.user)}&tiempo=${res.data.tiempo}&mac=${encodeURIComponent(res.data.mac || macApi)}`
         );
       } else {
         setError(res.data.error || "Error desconocido");
