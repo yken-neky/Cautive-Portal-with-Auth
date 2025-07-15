@@ -115,11 +115,9 @@ function BienvenidaContent() {
   // Handler para cerrar sesión y desconectar
   const handleLogout = async () => {
     if (!user || !mac) return;
-    // Convertir la MAC a formato con dos puntos para la API
-    const macColon = mac.replace(/-/g, ":");
     (async () => {
       try {
-        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=remove&mac=${encodeURIComponent(macColon)}`);
+        const res = await fetch(`http://192.168.1.1:8080/cgi-bin/mac_api?action=remove&mac=${encodeURIComponent(mac)}`);
         console.log("[mac_api:remove] llamada realizada", res.status, await res.text());
       } catch (err) {
         console.log("[mac_api:remove] error:", err);
@@ -135,9 +133,8 @@ function BienvenidaContent() {
       wsRef.current.close();
     }
     alert("Desconectado con éxito, gracias por usar nuestros servicios");
-    // Asegura que la MAC esté en formato con guiones
-    const macWithDash = (mac || "").replace(/:/g, "-");
-    router.push(`/cautive/${macWithDash}/login`); // Redirige al login de la misma MAC con guiones
+    // Redirige al portal cautivo usando la MAC sin separadores
+    router.push(`/cautive/${mac.replace(/[^0-9A-Fa-f]/g, "")}/login`);
   };
 
   // Formato HH:MM:SS
