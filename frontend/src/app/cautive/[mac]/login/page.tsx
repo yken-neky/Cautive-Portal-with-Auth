@@ -3,19 +3,18 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { loginAuth } from "@/api/auth";
 
-// Normaliza la MAC a formato AA-BB-CC-DD-EE-FF y luego valida
-function normalizeMac(mac: string) {
+// Normaliza la MAC a formato AABBCCDDEEFF y luego valida
+/* function normalizeMac(mac: string) {
   // Elimina espacios y convierte a mayúsculas
   let clean = mac.replace(/\s+/g, "").toUpperCase();
-  // Reemplaza dos puntos por guiones
-  clean = clean.replace(/:/g, "-");
+  // Elimina cualquier separador
+  clean = clean.replace(/[-:]/g, "");
   return clean;
-}
+} */
 
 function isValidMac(mac: string) {
-  const normalized = normalizeMac(mac);
-  // Solo permite 6 pares hexadecimales separados por -
-  return /^([0-9A-F]{2}-){5}[0-9A-F]{2}$/.test(normalized);
+  // Solo permite 12 caracteres hexadecimales (AABBCCDDEEFF), sin separadores
+  return /^[0-9A-F]{12}$/.test(mac);
 }
 
 export default function CautiveLogin() {
@@ -28,9 +27,9 @@ export default function CautiveLogin() {
 
 
   useEffect(() => {
-    // Extraer la MAC de la ruta /cautive/:mac/login y normalizarla
+    // Extraer la MAC de la ruta /cautive/:mac/login SIN normalizar separadores
     const macParam = typeof params.mac === "string" ? params.mac : Array.isArray(params.mac) ? params.mac[0] : "";
-    setMac(normalizeMac(macParam));
+    setMac(macParam.toUpperCase());
   }, [params]);
 
   if (!isValidMac(mac)) {
